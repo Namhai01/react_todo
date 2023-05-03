@@ -1,6 +1,5 @@
 import { Route, Routes } from "react-router-dom";
 import Login from "./Components/login/Login";
-import Home from "./Components/Home/Home";
 import Container from "./Components/TodoContainer/Container";
 function App() {
   return (

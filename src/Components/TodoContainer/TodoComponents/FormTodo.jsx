@@ -1,38 +1,33 @@
-import { Button, Checkbox, Form, Input, Modal, message } from "antd";
-import React, { useEffect, useState } from "react";
+import Button from "antd/lib/button";
+import Checkbox from "antd/lib/checkbox";
+import Form from "antd/lib/form";
+import Input from "antd/lib/input";
+import Modal from "antd/lib/modal";
+import message from "antd/lib/message";
+import "antd/lib/button/style";
+import "antd/lib/checkbox/style";
+import "antd/lib/form/style";
+import "antd/lib/input/style";
+import "antd/lib/modal/style";
+import "antd/lib/message/style";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { post } from "../../fetch/axiosClient";
 function FormTodo({ ModalValue, IsModalOpen, handelOpen, handelAdd, OpenAdd }) {
   const [form] = Form.useForm();
   const [isCheck, setIsCheck] = useState(false);
 
-  let result;
-  if (isCheck === true) {
-    result = "DONE";
-  } else if (isCheck === false) {
-    result = "UNDONE";
-  } else {
-    result = "UNDONE";
-  }
+  const result = useMemo(() => {
+    return isCheck ? "DONE" : "UNDONE";
+  }, [isCheck]);
 
   useEffect(() => {
-    if (ModalValue?.status === "DONE") {
-      setIsCheck(true);
-    } else if (ModalValue?.status === "UNDONE") {
-      setIsCheck(false);
-    } else {
-      setIsCheck(false);
-    }
+    setIsCheck(ModalValue?.status === "DONE" ? true : false);
   }, [IsModalOpen]);
 
-  const handelCheckBox = (e) => {
-    if (e.target.checked === true) {
-      setIsCheck(true);
-    } else if (e.target.checked === false) {
-      setIsCheck(false);
-    } else {
-      setIsCheck(false);
-    }
-  };
+  const handelCheckBox = useCallback((e) => {
+    setIsCheck(e.target.checked);
+  }, []);
+
   const handleCancel = () => {
     OpenAdd(handelAdd);
     form.resetFields();
@@ -40,26 +35,32 @@ function FormTodo({ ModalValue, IsModalOpen, handelOpen, handelAdd, OpenAdd }) {
   };
   const handleOk = async () => {
     if (handelAdd == false) {
-      await post("/list/update", {
-        id: ModalValue?._id,
-        job: form.getFieldValue("job"),
-        status: result,
-        title: form.getFieldValue("title"),
-        des: form.getFieldValue("description"),
-        //   skip: page,
-      }).then((res) => {
-        message.success(res.data.message);
-      });
+      try {
+        const response = await post("/list/update", {
+          id: ModalValue?._id,
+          job: form.getFieldValue("job"),
+          status: result,
+          title: form.getFieldValue("title"),
+          des: form.getFieldValue("description"),
+        });
+        message.success(response.data.message);
+      } catch (error) {
+        console.log(error);
+        message.error("An error occured while updating the list item.");
+      }
     } else {
-      await post("/list/add", {
-        job: form.getFieldValue("job"),
-        status: result,
-        title: form.getFieldValue("title"),
-        des: form.getFieldValue("description"),
-        //   skip: page,
-      }).then((res) => {
-        message.success(res.data.message);
-      });
+      try {
+        const response = await post("/list/add", {
+          job: form.getFieldValue("job"),
+          status: result,
+          title: form.getFieldValue("title"),
+          des: form.getFieldValue("description"),
+        });
+        message.success(response.data.message);
+      } catch (error) {
+        console.log(error);
+        message.error("An error occured while adding the list item.");
+      }
     }
     OpenAdd(handelAdd);
     handelOpen(!IsModalOpen);

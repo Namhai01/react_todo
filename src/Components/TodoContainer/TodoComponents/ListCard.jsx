@@ -2,37 +2,35 @@ import { Card } from "antd";
 import Meta from "antd/es/card/Meta";
 import React, { useEffect, useState } from "react";
 import FormTodo from "./FormTodo";
-import BtnHandel from "./BtnHandel";
+import TodoAction from "./TodoAction";
 
 function ListCard({ todo }) {
-  const [IsModalOpen, setIsModalOpen] = useState(false);
-  const [data, setData] = useState();
-  const [handelAdd, setHandelAdd] = useState(false);
-  const [IsAdd, setIsAdd] = useState(false);
-  const handelModal = (todo) => {
-    setData(todo);
-    setIsModalOpen(true);
-    setHandelAdd(true);
-  };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalValue, setModalValue] = useState(null);
+
+  const toggleModal = () => setIsModalOpen(!isModalOpen);
+
   return (
     <>
       <FormTodo
-        ModalValue={data}
-        IsModalOpen={IsModalOpen}
-        handelAdd={IsAdd}
-        OpenAdd={() => setIsAdd(!handelAdd)}
-        handelOpen={() => setIsModalOpen(!IsModalOpen)}
+        ModalValue={modalValue}
+        IsModalOpen={isModalOpen}
+        handelAdd={!modalValue}
+        OpenAdd={toggleModal}
+        handelOpen={toggleModal}
       />
-      <BtnHandel
-        IsModalOpen={IsModalOpen}
-        handelAdd={handelAdd}
-        handelOpen={() => setIsModalOpen(!IsModalOpen)}
-        OpenAdd={() => setIsAdd(!handelAdd)}
-        ResetData={() => setData()}
+      <TodoAction
+        IsModalOpen={isModalOpen}
+        handelOpen={toggleModal}
+        OpenAdd={toggleModal}
+        ResetData={() => setModalValue(null)}
       />
       <Card
         style={{ width: 300, marginTop: 16 }}
-        onClick={() => handelModal(todo)}
+        onClick={() => {
+          setModalValue(todo);
+          setIsModalOpen(true);
+        }}
         hoverable={true}
       >
         <Meta title={todo.title} description={todo.description} />
